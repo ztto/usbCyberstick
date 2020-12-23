@@ -24,11 +24,11 @@ Joystick_ Joystick = Joystick_(
   true,                    // x axis enable
   true,                    // y axis enable
   false,                   // z axis enable
-  false,                   // right x axis enable
-  false,                   // right y axis enable
+  true,                   // right x axis enable
+  true,                   // right y axis enable
   false,                   // right z axis enable
   false,                   // rudder enable
-  true,                    // throttle enable
+  false,                    // throttle enable
   false,                   // accelerator enable
   false,                   // brake enable
   false                    // steering enable
@@ -37,7 +37,7 @@ Joystick_ Joystick = Joystick_(
 // データ
 #define AXIS_X    0       // 操縦桿左右 (左00H～右FFH)
 #define AXIS_Y    1       // 操縦桿前後 (奥00H～手前FFH)
-#define THROTTLE  2       // スロットル (奥00H～手前FFH)
+#define RAXIS_Y   2       // 操縦桿2前後 (奥00H～手前FFH)
 #define BTN       3       // ボタン類１
 
 #define BTN_END  4        // 最大バッファ
@@ -75,13 +75,14 @@ void setup() {
   pinMode(REQ,OUTPUT) ;
   PORTB |= 0b00010000 ;
 
+  // ジョイスティック開始
+  Joystick.begin();
+
   // ジョイスティック初期設定
   Joystick.setXAxisRange(0, 254);
   Joystick.setYAxisRange(0, 254);
-  Joystick.setThrottleRange(0, 254);
-
-  // ジョイスティック開始
-  Joystick.begin();
+  Joystick.setRxAxisRange(0, 254);
+  Joystick.setRyAxisRange(0, 254);
 
   // CyberStick の仕様
   // (データの取り込みタイミングをアタッチ)
@@ -110,7 +111,7 @@ void loop() {
   // アナログ入力 ----------
   Joystick.setXAxis(data[AXIS_X]);
   Joystick.setYAxis(data[AXIS_Y]);
-  Joystick.setThrottle(data[THROTTLE]);
+  Joystick.setRyAxis(data[RAXIS_Y]);
 
   // ボタン入力 ------------
   // a
@@ -207,8 +208,8 @@ void getCyberStickStatus(){
   // サイクリックレバー Y軸
   data[AXIS_Y] = rcvdata[2] & 0xf0 | ((rcvdata[6]>>4) & 0x0f);
 
-  // スロットル
-  data[THROTTLE] = rcvdata[4] & 0xf0 | ((rcvdata[8]>>4) & 0x0f);
+  // サイクリックレバー Y軸
+  data[RAXIS_Y] = rcvdata[4] & 0xf0 | ((rcvdata[8]>>4) & 0x0f);
 
   //  ボタン
   data[BTN] = rcvdata[0] & 0xf0 | ((rcvdata[1]>>4) & 0x0f);
